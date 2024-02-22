@@ -24,9 +24,4 @@
 #define GUANACO_EXP expf
 #endif  // GUANACO_EXP
 
-#ifndef GUANACO_MAX
-#include <math.h>
-#define GUANACO_MAX fmaxf
-#endif  // GUANACO_MAX
-
 #endif  // GUANACO_DEFINES_H_

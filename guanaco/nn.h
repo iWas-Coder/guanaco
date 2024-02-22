@@ -135,6 +135,17 @@ inline void guanaco_nn_backprop(NN net,
   GUANACO_ASSERT(GUANACO_NN_OUTPUT(net).cols == Ys.cols);
   guanaco_nn_zero(grad);
 
+  float (*dx_af)(float) = 0;
+  switch (net.af_id) {
+  case GUANACO_AF_SIGMOID:
+    dx_af = guanaco_dx_sigmoid;
+    break;
+  case GUANACO_AF_RELU:
+    dx_af = guanaco_dx_relu;
+    break;
+  }
+  GUANACO_ASSERT(dx_af);
+
   for (size_t i = 0; i < n; ++i) {
     // Feed-forward
     guanaco_mat_copy(GUANACO_NN_INPUT(net), guanaco_mat_row(Xs, i));
@@ -150,13 +161,13 @@ inline void guanaco_nn_backprop(NN net,
       for (size_t j = 0; j < net.as[l].cols; ++j) {
         float a  = GUANACO_MAT_AT(net.as[l], 0, j);
         float da = GUANACO_MAT_AT(grad.as[l], 0, j);
-        float derivative = 2 * da * a * (1 - a);
-        GUANACO_MAT_AT(grad.bs[l - 1], 0, j) += derivative;
+        float qa = 2 * da * dx_af(a);
+        GUANACO_MAT_AT(grad.bs[l - 1], 0, j) += qa;
         for (size_t k = 0; k < net.as[l - 1].cols; ++k) {
           float pa = GUANACO_MAT_AT(net.as[l - 1], 0, k);
           float w  = GUANACO_MAT_AT(net.ws[l - 1], k, j);
-          GUANACO_MAT_AT(grad.ws[l - 1], k, j) += derivative * pa;
-          GUANACO_MAT_AT(grad.as[l - 1], 0, k) += derivative * w;
+          GUANACO_MAT_AT(grad.ws[l - 1], k, j) += qa * pa;
+          GUANACO_MAT_AT(grad.as[l - 1], 0, k) += qa * w;
         }
       }
     }

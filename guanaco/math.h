@@ -13,14 +13,17 @@ typedef struct {
 
 typedef enum {
   GUANACO_AF_SIGMOID,
-  GUANACO_AF_RELU,
-  GUANACO_AF_LEAKY_RELU
+  GUANACO_AF_RELU
 } AF;
 
 float guanaco_rand(void);
+int guanaco_round(float x);
 float guanaco_sigmoid(float x);
+float guanaco_dx_sigmoid(float x);
 float guanaco_relu(float x);
+float guanaco_dx_relu(float x);
 float guanaco_leaky_relu(float x);
+float guanaco_dx_leaky_relu(float x);
 Matrix guanaco_mat_create(size_t rows, size_t cols);
 void guanaco_mat_fill(Matrix m, float x);
 void guanaco_mat_rand(Matrix m, float low, float high);
@@ -38,16 +41,24 @@ inline float guanaco_rand(void) {
   return (float) GUANACO_RAND() / (float) GUANACO_RAND_MAX;
 }
 
+inline int guanaco_round(float x) {
+  return x >= 0 ? (int) (x + 0.5f) : (int) (x - 0.5f);
+}
+
 inline float guanaco_sigmoid(float x) {
-  return 1.0f / (1.0f + GUANACO_EXP(-x));
+  return 1 / (1 + GUANACO_EXP(-x));
+}
+
+inline float guanaco_dx_sigmoid(float x) {
+  return x * (1 - x);
 }
 
 inline float guanaco_relu(float x) {
-  return GUANACO_MAX(0.0f, x);
+  return x > 0 ? x : 0.01f * x;
 }
 
-inline float guanaco_leaky_relu(float x) {
-  return (x > 0) ? x : 0.01f * x;
+inline float guanaco_dx_relu(float x) {
+  return x >= 0 ? 1 : 0.01f;
 }
 
 inline Matrix guanaco_mat_create(size_t rows, size_t cols) {
@@ -104,9 +115,6 @@ inline void guanaco_mat_activate(Matrix m, AF af_id) {
     break;
   case GUANACO_AF_RELU:
     af = guanaco_relu;
-    break;
-  case GUANACO_AF_LEAKY_RELU:
-    af = guanaco_leaky_relu;
     break;
   }
   GUANACO_ASSERT(af);
