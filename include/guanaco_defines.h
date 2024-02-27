@@ -1,5 +1,4 @@
-#ifndef GUANACO_DEFINES_H_
-#define GUANACO_DEFINES_H_
+#pragma once
 
 #include <stddef.h>
 
@@ -29,5 +28,3 @@
 #include <math.h>
 #define GUANACO_EXP expf
 #endif  // GUANACO_EXP
-
-#endif  // GUANACO_DEFINES_H_
