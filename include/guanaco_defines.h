@@ -3,6 +3,12 @@
 
 #include <stddef.h>
 
+#ifdef GUANACO_IMPLEMENTATION
+#define GAPI inline
+#else
+#define GAPI
+#endif  // GUANACO_IMPLEMENTATION
+
 #ifndef GUANACO_MALLOC
 #include <stdlib.h>
 #define GUANACO_MALLOC malloc

@@ -1,67 +1,33 @@
-#ifndef GUANACO_MATH_H_
-#define GUANACO_MATH_H_
+#ifndef GUANACO_IMPLEMENTATION
+#include <guanaco_defines.h>
+#include <guanaco_math.h>
+#endif  // GUANACO_IMPLEMENTATION
 
-#define GUANACO_ARRAY_LEN(a) (sizeof((a))/sizeof((a)[0]))
-#define GUANACO_MAT_AT(m, i, j) ((m).es[(i) * (m).stride + (j)])
-
-typedef struct {
-  size_t rows;
-  size_t cols;
-  size_t stride;
-  float *es;
-} Matrix;
-
-typedef enum {
-  GUANACO_AF_SIGMOID,
-  GUANACO_AF_RELU
-} AF;
-
-float guanaco_rand(void);
-int guanaco_round(float x);
-float guanaco_sigmoid(float x);
-float guanaco_dx_sigmoid(float x);
-float guanaco_relu(float x);
-float guanaco_dx_relu(float x);
-float guanaco_leaky_relu(float x);
-float guanaco_dx_leaky_relu(float x);
-Matrix guanaco_mat_create(size_t rows, size_t cols);
-void guanaco_mat_fill(Matrix m, float x);
-void guanaco_mat_rand(Matrix m, float low, float high);
-Matrix guanaco_mat_row(Matrix m, size_t row);
-void guanaco_mat_copy(Matrix dst, Matrix src);
-void guanaco_mat_activate(Matrix m, AF af_id);
-void guanaco_mat_add(Matrix dst, Matrix a);
-void guanaco_mat_mult(Matrix dst, Matrix a, Matrix b);
-
-#endif  // GUANACO_MATH_H_
-
-#ifdef GUANACO_IMPLEMENTATION
-
-inline float guanaco_rand(void) {
+GAPI float guanaco_rand(void) {
   return (float) GUANACO_RAND() / (float) GUANACO_RAND_MAX;
 }
 
-inline int guanaco_round(float x) {
+GAPI int guanaco_round(float x) {
   return x >= 0 ? (int) (x + 0.5f) : (int) (x - 0.5f);
 }
 
-inline float guanaco_sigmoid(float x) {
+GAPI float guanaco_sigmoid(float x) {
   return 1 / (1 + GUANACO_EXP(-x));
 }
 
-inline float guanaco_dx_sigmoid(float x) {
+GAPI float guanaco_dx_sigmoid(float x) {
   return x * (1 - x);
 }
 
-inline float guanaco_relu(float x) {
+GAPI float guanaco_relu(float x) {
   return x > 0 ? x : 0.01f * x;
 }
 
-inline float guanaco_dx_relu(float x) {
+GAPI float guanaco_dx_relu(float x) {
   return x >= 0 ? 1 : 0.01f;
 }
 
-inline Matrix guanaco_mat_create(size_t rows, size_t cols) {
+GAPI Matrix guanaco_mat_create(size_t rows, size_t cols) {
   Matrix m = {
     .rows = rows,
     .cols = cols,
@@ -72,7 +38,7 @@ inline Matrix guanaco_mat_create(size_t rows, size_t cols) {
   return m;
 }
 
-inline void guanaco_mat_fill(Matrix m, float x) {
+GAPI void guanaco_mat_fill(Matrix m, float x) {
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
       GUANACO_MAT_AT(m, i, j) = x;
@@ -80,7 +46,7 @@ inline void guanaco_mat_fill(Matrix m, float x) {
   }
 }
 
-inline void guanaco_mat_rand(Matrix m, float low, float high) {
+GAPI void guanaco_mat_rand(Matrix m, float low, float high) {
   for (size_t i = 0; i < m.rows; ++i) {
     for (size_t j = 0; j < m.cols; ++j) {
       GUANACO_MAT_AT(m, i, j) = guanaco_rand() * (high - low) + low;
@@ -88,7 +54,7 @@ inline void guanaco_mat_rand(Matrix m, float low, float high) {
   }
 }
 
-inline Matrix guanaco_mat_row(Matrix m, size_t row) {
+GAPI Matrix guanaco_mat_row(Matrix m, size_t row) {
   return (Matrix) {
     .rows = 1,
     .cols = m.cols,
@@ -97,7 +63,7 @@ inline Matrix guanaco_mat_row(Matrix m, size_t row) {
   };
 }
 
-inline void guanaco_mat_copy(Matrix dst, Matrix src) {
+GAPI void guanaco_mat_copy(Matrix dst, Matrix src) {
   GUANACO_ASSERT(dst.rows == src.rows);
   GUANACO_ASSERT(dst.cols == src.cols);
   for (size_t i = 0; i < dst.rows; ++i) {
@@ -107,7 +73,7 @@ inline void guanaco_mat_copy(Matrix dst, Matrix src) {
   }
 }
 
-inline void guanaco_mat_activate(Matrix m, AF af_id) {
+GAPI void guanaco_mat_activate(Matrix m, AF af_id) {
   float (*af)(float) = 0;
   switch (af_id) {
   case GUANACO_AF_SIGMOID:
@@ -126,7 +92,7 @@ inline void guanaco_mat_activate(Matrix m, AF af_id) {
   }
 }
 
-inline void guanaco_mat_add(Matrix dst, Matrix a) {
+GAPI void guanaco_mat_add(Matrix dst, Matrix a) {
   GUANACO_ASSERT(dst.rows == a.rows);
   GUANACO_ASSERT(dst.cols == a.cols);
   for (size_t i = 0; i < dst.rows; ++i) {
@@ -136,7 +102,7 @@ inline void guanaco_mat_add(Matrix dst, Matrix a) {
   }
 }
 
-inline void guanaco_mat_mult(Matrix dst, Matrix a, Matrix b) {
+GAPI void guanaco_mat_mult(Matrix dst, Matrix a, Matrix b) {
   GUANACO_ASSERT(a.cols == b.rows);
   size_t n = a.cols;
   GUANACO_ASSERT(dst.rows == a.rows);
@@ -151,5 +117,3 @@ inline void guanaco_mat_mult(Matrix dst, Matrix a, Matrix b) {
     }
   }
 }
-
-#endif  // GUANACO_IMPLEMENTATION
