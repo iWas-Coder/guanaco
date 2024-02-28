@@ -3,9 +3,9 @@
 #include <stddef.h>
 
 #ifdef GUANACO_IMPLEMENTATION
-#define GAPI inline
+#define GUANACO_API inline
 #else
-#define GAPI
+#define GUANACO_API
 #endif  // GUANACO_IMPLEMENTATION
 
 #ifndef GUANACO_MALLOC

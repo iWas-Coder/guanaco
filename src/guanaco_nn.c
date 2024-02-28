@@ -4,7 +4,7 @@
 #include <guanaco_nn.h>
 #endif  // GUANACO_IMPLEMENTATION
 
-GAPI NN guanaco_nn_create(size_t *arch, size_t arch_count, AF af_id) {
+GUANACO_API NN guanaco_nn_create(size_t *arch, size_t arch_count, AF af_id) {
   GUANACO_ASSERT(arch_count);
 
   NN net = {
@@ -28,14 +28,14 @@ GAPI NN guanaco_nn_create(size_t *arch, size_t arch_count, AF af_id) {
   return net;
 }
 
-GAPI void guanaco_nn_rand(NN net, float lower, float upper) {
+GUANACO_API void guanaco_nn_rand(NN net, float lower, float upper) {
   for (size_t i = 0; i < net.count; ++i) {
     guanaco_mat_rand(net.ws[i], lower, upper);
     guanaco_mat_rand(net.bs[i], lower, upper);
   }
 }
 
-GAPI void guanaco_nn_zero(NN net) {
+GUANACO_API void guanaco_nn_zero(NN net) {
   for (size_t i = 0; i < net.count; ++i) {
     guanaco_mat_fill(net.ws[i], 0);
     guanaco_mat_fill(net.bs[i], 0);
@@ -44,7 +44,7 @@ GAPI void guanaco_nn_zero(NN net) {
   guanaco_mat_fill(net.as[net.count], 0);
 }
 
-GAPI void guanaco_nn_forward(NN net) {
+GUANACO_API void guanaco_nn_forward(NN net) {
   for (size_t i = 0; i < net.count; ++i) {
     guanaco_mat_mult(net.as[i + 1], net.as[i], net.ws[i]);
     guanaco_mat_add(net.as[i + 1], net.bs[i]);
@@ -52,7 +52,7 @@ GAPI void guanaco_nn_forward(NN net) {
   }
 }
 
-GAPI float guanaco_nn_cost(NN net, Matrix Xs, Matrix Ys) {
+GUANACO_API float guanaco_nn_cost(NN net, Matrix Xs, Matrix Ys) {
   GUANACO_ASSERT(Xs.rows == Ys.rows);
   GUANACO_ASSERT(Ys.cols == GUANACO_NN_OUTPUT(net).cols);
   float c = 0;
@@ -71,11 +71,11 @@ GAPI float guanaco_nn_cost(NN net, Matrix Xs, Matrix Ys) {
   return c / n;
 }
 
-GAPI void guanaco_nn_finite_diff(NN net,
-                                 NN grad,
-                                 float eps,
-                                 Matrix Xs,
-                                 Matrix Ys) {
+GUANACO_API void guanaco_nn_finite_diff(NN net,
+                                        NN grad,
+                                        float eps,
+                                        Matrix Xs,
+                                        Matrix Ys) {
   float saved = 0;
   float c = guanaco_nn_cost(net, Xs, Ys);
   for (size_t i = 0; i < net.count; ++i) {
@@ -98,10 +98,10 @@ GAPI void guanaco_nn_finite_diff(NN net,
   }
 }
 
-GAPI void guanaco_nn_backprop(NN net,
-                              NN grad,
-                              Matrix Xs,
-                              Matrix Ys) {
+GUANACO_API void guanaco_nn_backprop(NN net,
+                                     NN grad,
+                                     Matrix Xs,
+                                     Matrix Ys) {
   GUANACO_ASSERT(Xs.rows == Ys.rows);
   size_t n = Xs.rows;
   GUANACO_ASSERT(GUANACO_NN_OUTPUT(net).cols == Ys.cols);
@@ -159,7 +159,7 @@ GAPI void guanaco_nn_backprop(NN net,
   }
 }
 
-GAPI void guanaco_nn_learn(NN net, NN grad, float rate) {
+GUANACO_API void guanaco_nn_learn(NN net, NN grad, float rate) {
   for (size_t i = 0; i < net.count; ++i) {
     for (size_t j = 0; j < net.ws[i].rows; ++j) {
       for (size_t k = 0; k < net.ws[i].cols; ++k) {
