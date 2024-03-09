@@ -1,12 +1,38 @@
 #+AUTHOR: Wasym A. Alonso
-#+TITLE: ~guanaco~ :: /Lama guanicoe/
 
-#+CAPTION: Guanaco logo
+# Logo & Title
+#+begin_html
+<h1 align="center">
+<img src="assets/logo.png" alt="Guanaco Logo">
+<br/>
+Guanaco
+</h1>
+#+end_html
+
+# Subtitle
+#+begin_html
+<h4 align="center">
+Never. I'll never turn to the 🐌 side.
+<br/>
+You've failed, Your Highness. I am a 🐇, like my father before me.
+</h4>
+#+end_html
+
+# Buy Me A Coffee
+#+begin_html
+<p align="center">
+<a href="https://www.buymeacoffee.com/iwas.coder">
+<img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height=41 width=174>
+</a>
+</p>
+#+end_html
 
 # Repository info badges
 #+begin_html
-<p>
-<a href="https://www.gnu.org/licenses/gpl-3.0.html"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GNU GPL v3.0"></a>
+<p align="center">
+<img src="https://img.shields.io/github/license/iwas-coder/guanaco?color=blue" alt="License">
+<img src="https://img.shields.io/github/repo-size/iwas-coder/guanaco?color=blue" alt="Size">
+<img src="https://img.shields.io/github/v/tag/iwas-coder/guanaco?color=blue" alt="Release">
 </p>
 #+end_html
 
@@ -20,12 +46,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 #+end_quote
 
 * Table of Contents :toc:
-- [[#build][Build]]
 - [[#usage][Usage]]
-
-* Build
-
-(...)
 
 * Usage
 
