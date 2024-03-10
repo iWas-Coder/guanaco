@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stddef.h>
-
 #ifdef GUANACO_IMPLEMENTATION
 #define GUANACO_API inline
 #else
@@ -28,3 +26,8 @@
 #include <math.h>
 #define GUANACO_EXP expf
 #endif  // GUANACO_EXP
+
+#define false 0
+#define true 1
+
+typedef _Bool bool_t;

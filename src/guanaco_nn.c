@@ -4,6 +4,8 @@
 #include <guanaco_nn.h>
 #endif  // GUANACO_IMPLEMENTATION
 
+#include <stdio.h>
+
 GUANACO_API NN guanaco_nn_create(size_t *arch, size_t arch_count, AF af_id) {
   GUANACO_ASSERT(arch_count);
 
@@ -101,7 +103,8 @@ GUANACO_API void guanaco_nn_finite_diff(NN net,
 GUANACO_API void guanaco_nn_backprop(NN net,
                                      NN grad,
                                      Matrix Xs,
-                                     Matrix Ys) {
+                                     Matrix Ys,
+                                     bool_t traditional) {
   GUANACO_ASSERT(Xs.rows == Ys.rows);
   size_t n = Xs.rows;
   GUANACO_ASSERT(GUANACO_NN_OUTPUT(net).cols == Ys.cols);
@@ -122,18 +125,20 @@ GUANACO_API void guanaco_nn_backprop(NN net,
     // Feed-forward
     guanaco_mat_copy(GUANACO_NN_INPUT(net), guanaco_mat_row(Xs, i));
     guanaco_nn_forward(net);
-    for (size_t j = 0; j <= net.count; ++j) {
+    for (size_t j = 0; j < net.count; ++j) {
       guanaco_mat_fill(grad.as[j], 0);
     }
     for (size_t j = 0; j < Ys.cols; ++j) {
-      GUANACO_MAT_AT(GUANACO_NN_OUTPUT(grad), 0, j) = GUANACO_MAT_AT(GUANACO_NN_OUTPUT(net), 0, j) - GUANACO_MAT_AT(Ys, i, j);
+      GUANACO_MAT_AT(GUANACO_NN_OUTPUT(grad), 0, j) = traditional
+        ? (2 * GUANACO_MAT_AT(GUANACO_NN_OUTPUT(net), 0, j)) - GUANACO_MAT_AT(Ys, i, j)
+        : GUANACO_MAT_AT(GUANACO_NN_OUTPUT(net), 0, j) - GUANACO_MAT_AT(Ys, i, j);
     }
     // Back-propagation
     for (size_t l = net.count; l > 0; --l) {
       for (size_t j = 0; j < net.as[l].cols; ++j) {
         float a  = GUANACO_MAT_AT(net.as[l], 0, j);
         float da = GUANACO_MAT_AT(grad.as[l], 0, j);
-        float qa = 2 * da * dx_af(a);
+        float qa = traditional ? da * dx_af(a) : 2 * da * dx_af(a);
         GUANACO_MAT_AT(grad.bs[l - 1], 0, j) += qa;
         for (size_t k = 0; k < net.as[l - 1].cols; ++k) {
           float pa = GUANACO_MAT_AT(net.as[l - 1], 0, k);
@@ -172,4 +177,24 @@ GUANACO_API void guanaco_nn_learn(NN net, NN grad, float rate) {
       }
     }
   }
+}
+
+GUANACO_API void guanaco_nn_fit(NN net,
+                                size_t *net_arch,
+                                Matrix Xs,
+                                Matrix Ys,
+                                size_t epochs,
+                                bool_t verbose) {
+  NN grad = guanaco_nn_create(net_arch, net.count + 1, net.af_id);
+  float rate = 1e-4;
+  for (size_t i = 0; i < epochs; ++i) {
+    guanaco_nn_backprop(net, grad, Xs, Ys, false);
+    guanaco_nn_learn(net, grad, rate);
+    float cost = guanaco_nn_cost(net, Xs, Ys);
+    if (!verbose && !(i % (epochs / 10))) printf("[%zu%%]: cost = %f\n", (size_t) (((float) i / epochs) * 100), cost);
+    if (verbose) printf("[%zu/%zu]: cost = %f\n", i, epochs, cost);
+    if (i == epochs || cost <= 1e-4) break;
+  }
+  if (!verbose) printf("[100%%]: cost = %f\n", guanaco_nn_cost(net, Xs, Ys));
+  printf("[INFO]: Training completed\n\n");
 }

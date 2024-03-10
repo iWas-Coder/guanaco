@@ -25,8 +25,15 @@ void guanaco_nn_finite_diff(NN net,
 void guanaco_nn_backprop(NN net,
                          NN grad,
                          Matrix Xs,
-                         Matrix Ys);
+                         Matrix Ys,
+                         bool_t traditional);
 void guanaco_nn_learn(NN net, NN grad, float rate);
+void guanaco_nn_fit(NN net,
+                    size_t *net_arch,
+                    Matrix Xs,
+                    Matrix Ys,
+                    size_t epochs,
+                    bool_t verbose);
 
 #endif  // GUANACO_NN_H_
 
